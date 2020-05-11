@@ -1,6 +1,5 @@
 ﻿#include "QFloat.h"
 
-
 QFloat::QFloat() {
 	for (int i = 0; i < 4; ++i) {
 		this->data[i] = 0;
@@ -16,6 +15,7 @@ void QFloat::ScanQFloat(QFloat& x) {
 		s.erase(0, 1);
 	}
 	string res = toBit(s, exp);
+
 	//phần mũ
 	for (int i = 1; i <= 15; ++i) {
 		if (getBit(exp, 31 - 15 + i))
@@ -27,11 +27,47 @@ void QFloat::ScanQFloat(QFloat& x) {
 			setBit(x.data[i / 32], i % 32);
 		}
 	}
-
+	/*for (int i = 0; i < 128; ++i) {
+		cout << getBit(x.data[i / 32], i % 32);
+		if (i == 15) cout << endl;
+	}*/
 }
 
 void QFloat::PrintQFloat(QFloat x) {
-
+	Float s(0);
+	//phần dấu
+	bool sign = x.getBit(x.data[0], 0);
+	//phần mũ
+	int exp = 0;
+	for (int i = 15; i >= 1; i--) {
+		exp += x.getBit(x.data[0], i) * (1 << (15 - i));
+	}
+	exp -= (1 << 14) - 1;
+	int i = 0;
+	//phần trị
+	//kiểm tra số không chuẩn
+	if (exp == -(1 << 14) + 1) {
+		exp = -(1 << 14) + 2;
+		i = 1;
+		while (i + 15 < 128 && getBit(x.data[(i + 15) / 32], i % 32)) {
+			++i;
+		}
+		if (i + 15 == 128) cout << "0";
+	}
+	int d = exp - i;
+	Float t(1);
+	if (d < 0) t = t >> -d;
+	else t = t << d;
+	s = s + t;
+	++i;
+	while (i < 113) {
+		t = t >> 1;
+		if (getBit(x.data[(i+15) / 32], (i+15) % 32)) s = s + t;
+		++i;
+	}
+	if (sign) s = ~s;
+	string res = string(s);
+	cout << res;
 }
 
 // Hàm hỗ trợ
@@ -157,6 +193,19 @@ string QFloat::mulFracByTwo(string s)
 		res.insert(res.begin(), '.');
 		for (int i = pos - 1; i >= 0; --i) {
 			temp = (s[i] - '0') * 2 + carry;
+			if (temp >= 10) {
+				res.insert(res.begin(), char(temp - 10 + '0'));
+				carry = 1;
+			}
+			else {
+				res.insert(res.begin(), char(temp + '0'));
+				carry = 0;
+			}
+		}
+	}
+	else {
+		for (int i = len - 1; i >= 0; --i) {
+			temp = (s[i] - 48) * 2 + carry;
 			if (temp >= 10) {
 				res.insert(res.begin(), char(temp - 10 + '0'));
 				carry = 1;

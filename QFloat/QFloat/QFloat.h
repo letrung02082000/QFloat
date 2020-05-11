@@ -1,6 +1,8 @@
 #pragma once
 #include<iostream>
 #include<string>
+#include"Float.h"
+
 using namespace std;
 class QFloat
 {
