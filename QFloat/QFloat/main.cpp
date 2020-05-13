@@ -2,10 +2,10 @@
 #include<fstream>
 vector<int> position(string s);
 vector<string> whichCase(string s);
-int main() {
+int main(int argc, char* argv[]) {
 
-	ifstream inFile("input.txt", ifstream::in);
-	ofstream outFile("output.txt", ofstream::out);
+	ifstream inFile(argv[1], ifstream::in);
+	ofstream outFile(argv[2], ofstream::out);
 
 	if (!inFile.is_open()) {
 		cout << "can't open file!!!" << endl;
