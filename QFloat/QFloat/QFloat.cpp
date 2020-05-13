@@ -5,72 +5,129 @@ QFloat::QFloat() {
 		this->data[i] = 0;
 	}
 }
-//Nhập số thực
+
+//Nhap so thap phan tu ban phim vao x
 void QFloat::ScanQFloat(QFloat& x) {
 	string s;
-	int exp = 0;
 	cin >> s;
+	x.stringToQFloat(s);
+}
+
+//Xuat so thap phan ra man hinh
+void QFloat::PrintQFloat(QFloat x) {
+	cout << x.QFloatToStrDec();
+}
+
+//Chuyen chuoi so thap phan ve chuoi nhi phan
+string QFloat::decToBin(string s) {
+	QFloat x;
+	x.stringToQFloat(s);
+	string dec;
+	for (int i = 0; i < 128; ++i) {
+		dec += to_string(x.getBit(x.data[i / 32], i % 32));
+	}
+	return dec;
+}
+
+//Chuyen chuoi nhi phan ve chuoi thap phan
+string QFloat::binToDec(string s) {
+	QFloat x;
+	for (int i = 0; i < 128; ++i) {
+		if (s[i] == '1') {
+			x.setBit(x.data[i / 32], i % 32);
+		}
+	}
+	return x.QFloatToStrDec();
+}
+
+//Nhap so thap phan tu chuoi s vao x
+void QFloat::stringToQFloat(string s) {
+	if (s == "Inf" || s=="-Inf") {
+		for (int i = 1; i < 16; ++i) {
+			setBit(data[0], i % 32);
+		}
+		if (s[0] == 'I') {
+			setBit(data[0], 0);
+		}
+	}
+	else if (s == "NaN") {
+		for (int i = 1; i < 16; ++i) {
+			setBit(data[0], i % 32);
+		}
+		if (s[0] == 'I') {
+			setBit(data[0], 0);
+		}
+		setBit(data[3], 15);
+	}
+	else if (isZeroStr(s)) {
+		*this = QFloat();
+	}
+
+	int exp = 0;
+	//Set phan dau
 	if (s[0] == '-') {
-		setBit(x.data[0], 0);
+		setBit(data[0], 0);
 		s.erase(0, 1);
 	}
 	string res = toBit(s, exp);
 
-	//phần mũ
+	//Set phan mu
 	for (int i = 1; i <= 15; ++i) {
 		if (getBit(exp, 31 - 15 + i))
-			setBit(x.data[0], i);
+			setBit(data[0], i);
 	}
-	//phần trị
+	//Set phan tri
 	for (int i = 16; i < 128; ++i) {
 		if (res[i - 15] - '0') {
-			setBit(x.data[i / 32], i % 32);
+			setBit(data[i / 32], i % 32);
 		}
 	}
-	/*for (int i = 0; i < 128; ++i) {
-		cout << getBit(x.data[i / 32], i % 32);
-		if (i == 15) cout << endl;
-	}*/
 }
 
-void QFloat::PrintQFloat(QFloat x) {
-	Float s(0);
-	//phần dấu
-	bool sign = x.getBit(x.data[0], 0);
-	//phần mũ
+string QFloat::QFloatToStrDec() {
+	if (isInf()) {
+		return "Inf";
+	}
+	if (isNaN())
+		return "NaN";
+	if (isZero())
+		return "0";
+	
+	//Lay dau
+	bool sign = getBit(data[0], 0);
+	//Lay phan mu
 	int exp = 0;
 	for (int i = 15; i >= 1; i--) {
-		exp += x.getBit(x.data[0], i) * (1 << (15 - i));
+		exp += getBit(data[0], i) * (1 << (15 - i));
 	}
 	exp -= (1 << 14) - 1;
 	int i = 0;
-	//phần trị
-	//kiểm tra số không chuẩn
+	//Lay phan tri
+	//Kiem tra so khong chuan
 	if (exp == -(1 << 14) + 1) {
 		exp = -(1 << 14) + 2;
-		i = 1;
-		while (i + 15 < 128 && getBit(x.data[(i + 15) / 32], i % 32)) {
-			++i;
-		}
-		if (i + 15 == 128) cout << "0";
+		return "DenormalizedNumber";
 	}
+	//Tim 2^i dau tien
 	int d = exp - i;
 	Float t(1);
-	if (d < 0) t = t >> -d;
+	if (d < 0) t = t << -d;
 	else t = t << d;
+	Float s(0);
 	s = s + t;
+	cout << "a";
 	++i;
 	while (i < 113) {
 		t = t >> 1;
-		if (getBit(x.data[(i+15) / 32], (i+15) % 32)) s = s + t;
+		if (getBit(data[(i+15) / 32], (i+15) % 32)) s = s + t;
 		++i;
 	}
 	if (sign) s = ~s;
 	string res = string(s);
-	cout << res;
+	return res;
 }
 
-// Hàm hỗ trợ
+// Ham ho tro
 
 void QFloat::setBit(int& x, int i) {
 	x = x | (1 << (31 - i));
@@ -80,6 +137,8 @@ int QFloat::getBit(int x, int i) {
 	return (x >> (31 - i)) & 1;
 }
 
+
+//Chuyen chuoi thap phan ve chuoi nhi phan va luu so mu o dang so qua K vao exp
 string QFloat::toBit(string s, int& exp) {
 	string in, frac, fracBit;
 	string res = "";
@@ -94,8 +153,11 @@ string QFloat::toBit(string s, int& exp) {
 		frac = s.substr(pos);
 		frac.insert(frac.begin(), '0');
 	}
+	//Chuyen phan nguyen ve chuoi nhi phan
 	in = toBin(in);
+	//So qua K =  2^14 - 1
 	int k = (1 << 14) - 1;
+	//Chuyen phan thap phan ve chuoi nhi phan
 	if (in != "") {
 		exp = in.size() + k - 1;
 		for (int i = 0; i < (112 - int(in.size() - 1)); ++i) {
@@ -141,6 +203,7 @@ string QFloat::toBit(string s, int& exp) {
 	return res;
 }
 
+//Chia chuoi thap phan cho 2
 string QFloat::strDiv2(string s)
 {
 	string res = s;
@@ -158,6 +221,7 @@ string QFloat::strDiv2(string s)
 	return res;
 }
 
+//Chuyen chuoi so nguyen ve chuoi nhi phan
 string QFloat::toBin(string s)
 {
 	string res = "";
@@ -171,6 +235,7 @@ string QFloat::toBin(string s)
 	return res;
 }
 
+//Nhan phan thap phan cho 2
 string QFloat::mulFracByTwo(string s)
 {
 	int len = s.length();
@@ -218,4 +283,50 @@ string QFloat::mulFracByTwo(string s)
 	}
 	if (carry == 1) res.insert(res.begin(), char(temp + '0'));
 	return res;
+}
+
+// So 0
+bool QFloat::isZero() {
+	for (int i = 0; i < 4; ++i)
+		if (data[i] != 0)
+			return false;
+	return true;
+}
+
+// So vo cung
+bool QFloat::isInf() {
+	for (int i = 1; i <= 15; ++i)
+		if (getBit(data[0], i%32) != 1)
+			return false;
+	for (int i = 16; i<128; ++i)
+		if (getBit(data[i/32],i%32) != 0)
+			return false;
+	return true;
+}
+
+// So NaN
+bool QFloat::isNaN() {
+	for (int i = 1; i <= 15; i++)
+		if (getBit(data[0], i%32) != 1)
+			return false;
+	for (int i = 16; i < 128; i++)
+		if (getBit(data[i/32],i%32) != 0)
+			return true;
+	return false;
+}
+
+bool QFloat::isZeroStr(string s) {
+	int pos = s.find('.');
+	int len = s.length();
+	if (pos != string::npos) {
+		for (int i = 0; i < pos; ++i)
+			if (s[i] != '0') return false;
+		for (int i = pos + 1; i < len; ++i)
+			if (s[i] != '0') return false;
+	}
+	else {
+		for (int i = 0; i < len; ++i)
+			if (s[i] != '0') return false;
+	}
+	return true;
 }

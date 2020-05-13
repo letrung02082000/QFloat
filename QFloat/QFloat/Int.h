@@ -5,7 +5,7 @@
 using namespace std;
 
 class Int {
-private:
+public:
 	vector<int> Digit;
 	bool sign;
 public:

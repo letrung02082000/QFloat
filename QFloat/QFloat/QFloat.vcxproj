@@ -138,7 +138,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Float.cpp" />
     <ClCompile Include="Int.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QFloat.cpp" />

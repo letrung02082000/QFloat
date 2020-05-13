@@ -4,7 +4,7 @@
 #include <cmath>
 
 class Float {
-private:
+public:
 	Int data;
 	int exp;
 public:
