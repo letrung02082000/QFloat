@@ -1,46 +1,43 @@
 ﻿#pragma once
-#include <string>
-#include <vector>
 #include <iostream>
+#include <vector>
+#include <string>
+
+
 using namespace std;
 
 class Int {
 public:
-	vector<int> Digit;
+	vector<int> val;
 	bool sign;
 public:
-	// Nhóm hàm khởi tạo
+	//Khoi tao
 	Int();
 	Int(string s);
 	Int(int n);
 
-	// Nhóm hàm lấy/đặt
-	void input();
-	void print() const;
-	bool isNegative() const;
-	bool isOdd() const;
-	int length() const;
-	int operator[](int i) const;
+	//Ham ho tro
 
-	// Nhóm các toán tử
-	Int operator +(const Int&) const;
-	Int operator -(const Int&) const;
 	Int doubled() const;
 	Int halved(int&) const;
 	Int tenfold(int k) const;
 	Int tenth(int k) const;
+	bool isNegative() const;
+	bool isOdd() const;
+	int length() const;
+
+	//Toan tu
+	Int operator +(const Int&) const;
+	Int operator -(const Int&) const;
+	operator string() const;
 	Int operator <<(int k) const;
 	Int operator !() const;
 	Int operator ~() const;
-
-	// Nhóm so sánh
 	bool operator == (const Int& n) const;
 	bool operator != (const Int& n) const;
 	bool operator > (const Int& n) const;
 	bool operator < (const Int& n) const;
 	bool operator >= (const Int& n) const;
 	bool operator <= (const Int& n) const;
-
-	// Nhóm ép kiểu
-	operator string() const;
+	int operator[](int i) const;
 };

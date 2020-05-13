@@ -3,7 +3,6 @@
 vector<int> position(string s);
 vector<string> whichCase(string s);
 int main(int argc, char* argv[]) {
-
 	ifstream inFile(argv[1], ifstream::in);
 	ofstream outFile(argv[2], ofstream::out);
 
@@ -31,7 +30,6 @@ int main(int argc, char* argv[]) {
 			outFile << output;
 		}
 	}
-
 }
 
 vector<int> position(string s) {
@@ -45,6 +43,7 @@ vector<int> position(string s) {
 	}
 	a.push_back(count);
 	return a;
+
 }
 
 vector<string> whichCase(string s) {

@@ -111,11 +111,10 @@ string QFloat::QFloatToStrDec() {
 	//Tim 2^i dau tien
 	int d = exp - i;
 	Float t(1);
-	if (d < 0) t = t << -d;
+	if (d < 0) t = t >> -d;
 	else t = t << d;
 	Float s(0);
 	s = s + t;
-	cout << "a";
 	++i;
 	while (i < 113) {
 		t = t >> 1;
@@ -172,7 +171,7 @@ string QFloat::toBit(string s, int& exp) {
 			frac = mulFracByTwo(frac);
 			fracBit += frac[0];
 			frac[0] = '0';
-			if (frac.back() == '1') {
+			if (fracBit.back() == '1') {
 				break;
 			}
 			++count;
@@ -194,9 +193,13 @@ string QFloat::toBit(string s, int& exp) {
 				frac[0] = '0';
 				++exp;
 			}
+			res = in + frac;
+			while (res.size() < 113) res += '0';
+			return res;
 		}
 	}
 	res = in + fracBit;
+	while (res[0] == '0') res.erase(0, 1);
 	while (res.size() < 113) {
 		res += '0';
 	}
@@ -315,6 +318,7 @@ bool QFloat::isNaN() {
 	return false;
 }
 
+//Kiem tra chuoi so thap phan 0
 bool QFloat::isZeroStr(string s) {
 	int pos = s.find('.');
 	int len = s.length();
